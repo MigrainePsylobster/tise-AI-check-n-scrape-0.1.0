@@ -6,7 +6,7 @@ import json
 from typing import List, Dict, Optional
 from datetime import datetime
 
-from config import USER_AGENTS, REQUEST_DELAY_SECONDS, MAX_RETRIES
+from config import REQUEST_DELAY_SECONDS, MAX_RETRIES
 from database import DatabaseManager
 
 class TiseScraper:
@@ -20,7 +20,7 @@ class TiseScraper:
     def _setup_session(self):
         """Setup requests session with proper headers for Tise API."""
         self.session.headers.update({
-            'User-Agent': random.choice(USER_AGENTS),
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'application/json, text/plain, */*',
             'Accept-Language': 'en,en;q=0.9',
             'sec-ch-ua-platform': '"Windows"',
@@ -32,9 +32,6 @@ class TiseScraper:
         """Make HTTP request with retry logic."""
         for attempt in range(MAX_RETRIES):
             try:
-                # Rotate user agent
-                self.session.headers['User-Agent'] = random.choice(USER_AGENTS)
-                
                 response = self.session.get(url, timeout=30)
                 response.raise_for_status()
                 

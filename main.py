@@ -15,7 +15,14 @@ from typing import List
 # Add src to path for imports
 sys.path.append('src')
 
-from config import *
+from config import (
+    PROFILES_TO_MONITOR, 
+    CHECK_INTERVAL_MINUTES, 
+    REQUEST_DELAY_SECONDS,
+    DOWNLOADS_FOLDER, 
+    DATABASE_PATH, 
+    LOGS_FOLDER
+)
 from database import DatabaseManager
 from scraper_new import TiseScraper
 from downloader import FileDownloader
@@ -99,7 +106,6 @@ class TiseMonitor:
                                 downloaded_files = self.downloader.download_post_content(post)
                                 if downloaded_files:
                                     logging.info(f"Downloaded {len(downloaded_files)} files for: {post['title']}")
-                                    self._notify_new_post(post, downloaded_files)
                                 else:
                                     logging.warning(f"Failed to download content for: {post['title']}")
                             except Exception as e:
@@ -117,37 +123,6 @@ class TiseMonitor:
             
         except Exception as e:
             logging.error(f"Error in check_all_profiles: {e}")
-    
-    def _notify_new_post(self, post: dict, downloaded_files: List[str]):
-        """Notify about new post (placeholder for notification system)."""
-        try:
-            if ENABLE_NOTIFICATIONS:
-                title = post.get('title', 'New Post')
-                profile_url = post.get('profile_url', '')
-                
-                message = f"New post found: {title}\\nProfile: {profile_url}\\nFiles downloaded: {len(downloaded_files)}"
-                
-                # Here you could add:
-                # - Windows toast notifications
-                # - Email notifications
-                # - Discord/Slack webhooks
-                # - Sound notifications
-                
-                logging.info(f"NOTIFICATION: {message}")
-                
-                if NOTIFICATION_SOUND:
-                    self._play_notification_sound()
-                    
-        except Exception as e:
-            logging.error(f"Error sending notification: {e}")
-    
-    def _play_notification_sound(self):
-        """Play notification sound (Windows)."""
-        try:
-            import winsound
-            winsound.PlaySound("SystemQuestion", winsound.SND_ALIAS)
-        except:
-            pass  # Ignore if sound fails
     
     def print_statistics(self):
         """Print current statistics."""

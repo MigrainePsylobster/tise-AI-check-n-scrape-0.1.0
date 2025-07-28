@@ -1,174 +1,205 @@
-# Tise.com Profile Scraper
+# 🛍️ ## ✨ Features
 
-A Python application for monitoring Tise.com profiles and automatically downloading new posts with images and metadata.
+- 🎯 **Profile Monitoring**: Track any Tise.com user profile for new posts
+- ⏰ **Automatic Checking**: Set custom intervals (default: every 30 minutes)  
+- 🚫 **Smart Duplicates**: Never download the same post twice
+- 📂 **Perfect Organization**: Files organized by username with descriptive names
+- 🖼️ **Enhanced Naming**: `Post Title_UniqueID_ImageNumber.jpg` format
+- 🔄 **Auto WebP→JPG**: Automatically converts .webp images to .jpg
+- 💾 **SQLite Tracking**: Built-in database tracks everything
+- 📊 **Statistics**: View download stats and success rates
+- 🔧 **Easy Configuration**: Simple config file setup
+- 🚀 **Service Mode**: Easy `run.bat` for continuous monitoringrofile Scraper
 
-## Features
+**Automatically monitor Tise.com profiles and download new posts with organized file management!**
 
-- 🔍 **Monitor Multiple Profiles**: Track multiple Tise.com user profiles simultaneously
-- 🕒 **Scheduled Checking**: Automatically check for new posts at configurable intervals
-- 🚫 **Duplicate Prevention**: Skip posts that have already been downloaded
-- 📁 **Organized Downloads**: Save images and metadata in organized folder structure
-- 💾 **SQLite Database**: Track all posts and download history
-- 🔄 **Resume Support**: Continue monitoring after interruptions
-- 📊 **Statistics**: View detailed statistics about scraping activity
-- 🔧 **Configurable**: Easy configuration through config.py
+A Windows-ready Python application that watches Tise.com user profiles and downloads all their posts (images + metadata) with smart duplicate prevention and beautiful file organization.
 
-## Project Structure
+## ✨ Features
 
+- 🎯 **Profile Monitoring**: Track any Tise.com user profile for new posts
+- ⏰ **Automatic Checking**: Set custom intervals (default: every 30 minutes)  
+- 🚫 **Smart Duplicates**: Never download the same post twice
+- � **Perfect Organization**: Files organized by username with descriptive names
+- �️ **Enhanced Naming**: `Post Title_UniqueID_ImageNumber.jpg` format
+- � **SQLite Tracking**: Built-in database tracks everything
+- 📊 **Statistics**: View download stats and success rates
+- 🔧 **Easy Configuration**: Simple config file setup
+
+## 🚀 Quick Start
+
+### 1️⃣ **Easy Installation**
+```cmd
+# Run the setup script (installs everything automatically)
+setup.bat
 ```
-tise-scraper/
-├── main.py                 # Main application entry point
-├── config.py              # Configuration settings
-├── requirements.txt       # Python dependencies
-├── setup.bat             # Windows setup script
-├── src/
-│   ├── database.py       # Database operations
-│   ├── scraper.py        # Web scraping logic
-│   └── downloader.py     # File download handling
-├── data/
-│   ├── downloads/        # Downloaded files organized by profile/post
-│   └── database.db       # SQLite database
-└── logs/                 # Application logs
-```
 
-## Installation
-
-### Prerequisites
-- Python 3.8 or higher
-- Windows (script designed for Windows, but can be adapted for other OS)
-
-### Quick Setup
-1. **Run the setup script:**
-   ```bash
-   setup.bat
-   ```
-
-### Manual Setup
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Create directories:**
-   ```bash
-   mkdir data logs data\\downloads
-   ```
-
-## Configuration
-
-Edit `config.py` to configure your monitoring settings:
-
+### 2️⃣ **Configure Your Profile**
+Edit `config.py` and add the profile you want to monitor:
 ```python
-# Add your target Tise profile URLs
 PROFILES_TO_MONITOR = [
-    "https://tise.com/profiles/username1",
-    "https://tise.com/profiles/username2",
+    "https://tise.com/your-target-username",
 ]
+```
 
-# Check interval (minutes)
+### 3️⃣ **Run the Scraper**
+```cmd
+# Download all current posts once
+python main.py --check
+
+# Start continuous monitoring  
+python main.py --auto
+
+# View statistics
+python main.py --stats
+
+# OR use the easy service launcher
+run.bat
+```
+
+## 📁 File Organization
+
+Your downloads will be organized like this:
+```
+data/downloads/username/
+├── images/
+│   ├── Air Jordan 6_5f8dd7f28bd2d700127c9dea_1.jpg
+│   ├── Air Jordan 6_5f8dd7f28bd2d700127c9dea_2.jpg
+│   ├── Dunk Galaxy Blue_60ca34f75e874a00961a617d_1.jpg
+│   └── ...
+├── metadata/
+│   ├── post_metadata_1.json
+│   └── ...
+└── metadata.json  # Summary of all posts
+```
+
+## ⚙️ Configuration
+
+Key settings in `config.py`:
+```python
+# How often to check (in minutes)
 CHECK_INTERVAL_MINUTES = 30
 
-# Other settings...
+# Profiles to monitor
+PROFILES_TO_MONITOR = [
+    "https://tise.com/username1",
+    "https://tise.com/username2",
+]
+
+# File locations
+DOWNLOADS_FOLDER = "data/downloads"
+DATABASE_PATH = "data/database.db"
 ```
 
-## Usage
+## 📊 Command Options
 
-### Interactive Mode
-Run the application in interactive mode with a menu:
-```bash
-python main.py
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `run.bat` | **Easy service launcher** - Starts monitoring automatically | 🚀 **Recommended for daily use** |
+| `python main.py --check` | Download all current posts once and exit | ✅ **First time setup or testing** |
+| `python main.py --auto` | Start continuous monitoring (every 30 min) | 🔄 **Manual monitoring** |
+| `python main.py --stats` | Show download statistics | 📈 **Check progress** |
+
+## 🎯 Example Output
+
+**Successful run example:**
+```
+==================================================
+TISE MONITOR STATISTICS
+==================================================
+Active Profiles: 1
+Total Posts Found: 16
+Downloaded Posts: 16
+Recent Posts (24h): 16
+Download Success Rate: 100.0%
+Total Files Downloaded: 68
+Total Download Size: 9.8 MB
+Downloads Folder: data\downloads
+==================================================
 ```
 
-### Automatic Mode
-Start continuous monitoring:
-```bash
-python main.py --auto
+## 🛠️ Manual Installation (Alternative)
+
+If `setup.bat` doesn't work:
+```cmd
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Create directories
+mkdir data
+mkdir logs  
+mkdir data\downloads
 ```
 
-### One-time Check
-Check all profiles once and exit:
-```bash
-python main.py --check
+## ⚡ Pro Tips
+
+- 🎯 **First Run**: Always use `--check` first to download existing posts
+- ⏰ **Testing**: Lower `CHECK_INTERVAL_MINUTES` to 2 for testing
+- 📂 **Organization**: Files are automatically organized by username
+- 🔍 **Debugging**: Check `logs/` folder if something goes wrong
+- 💾 **Database**: Located at `data/database.db` (can be deleted to reset)
+
+## 🏗️ Project Structure
+```
+tise-AI-check-n-scrape/
+├── 📄 main.py                  # Main application
+├── ⚙️ config.py                # Your settings
+├── 📋 requirements.txt         # Dependencies
+├── 🪟 setup.bat               # Windows installer
+├── � run.bat                 # Service launcher
+├── �📁 src/
+│   ├── 🔧 database.py         # Database handling
+│   ├── 🌐 scraper_new.py      # Web scraping (API-based)  
+│   └── 📥 downloader.py       # File downloads
+├── 📁 data/
+│   ├── 📁 downloads/          # Your downloaded files
+│   └── 🗄️ database.db        # Tracking database
+└── 📁 logs/                   # Application logs
 ```
 
-### View Statistics
-Display current statistics:
-```bash
-python main.py --stats
-```
+## 🔧 Troubleshooting
 
-## How It Works
+### ❌ Common Issues
 
-1. **Profile Monitoring**: The scraper visits each configured Tise profile page
-2. **Post Detection**: Identifies individual posts/items on the profile
-3. **Duplicate Check**: Compares against database to avoid re-downloading
-4. **Content Download**: Downloads images and saves metadata for new posts
-5. **Organization**: Saves files in organized folder structure by profile/post
-6. **Logging**: Records all activities for monitoring and debugging
+| Problem | Solution |
+|---------|----------|
+| **"Module not found"** | Run `pip install -r requirements.txt` |
+| **"Permission denied"** | Run PowerShell as Administrator |
+| **"Profile not found"** | Check the Tise URL is correct and public |
+| **"No posts found"** | Profile might be empty or private |
 
-## Download Structure
+### 📋 Getting Profile URLs
 
-Downloads are organized as follows:
-```
-data/downloads/
-├── username1_post_title_12345678/
-│   ├── image_1.jpg
-│   ├── image_2.jpg
-│   └── metadata.json
-├── username2_another_post_87654321/
-│   ├── image_1.png
-│   └── metadata.json
-└── ...
-```
+1. Go to Tise.com
+2. Search for the user you want to monitor  
+3. Copy their profile URL (e.g., `https://tise.com/username`)
+4. Add to `PROFILES_TO_MONITOR` in `config.py`
 
-Each post folder contains:
-- **Images**: All images from the post (jpg, png, gif, webp)
-- **metadata.json**: Post information (title, description, price, URLs, dates)
+- � **Respect the website**: Built-in delays prevent server overload
+- 📋 **Check terms of service**: Ensure compliance with Tise.com's terms
+- 🔒 **Private data**: Only monitor public profiles
+- 💾 **Local use**: Keep downloaded content for personal use only
 
-## Database Schema
+## 🤝 Contributing
 
-The SQLite database tracks:
-- **posts**: All discovered posts with metadata
-- **profiles**: Monitored profiles and check history  
-- **scraping_logs**: Detailed activity logs
+Found a bug or want to improve the scraper? Feel free to contribute!
 
-## Configuration Options
+1. Fork the repository
+2. Make your changes
+3. Test thoroughly
+4. Submit a pull request
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `PROFILES_TO_MONITOR` | List of profile URLs to monitor | `[]` |
-| `CHECK_INTERVAL_MINUTES` | How often to check for new posts | `30` |
-| `REQUEST_DELAY_SECONDS` | Delay between HTTP requests | `2` |
-| `USE_HEADLESS_BROWSER` | Use headless Chrome for JS-heavy pages | `True` |
-| `DOWNLOADS_FOLDER` | Where to save downloaded files | `"data/downloads"` |
-| `ENABLE_NOTIFICATIONS` | Enable notifications for new posts | `True` |
+## 📞 Support
 
-## Troubleshooting
+Having issues? Check these resources:
 
-### Common Issues
+1. 📋 **Logs**: Check `logs/` folder for error details
+2. 🗄️ **Database**: Delete `data/database.db` to reset if corrupted
+3. 🔄 **Restart**: Try `python main.py --check` for a fresh start
 
-1. **Import Errors**: Make sure all dependencies are installed:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-2. **Chrome Driver Issues**: The script auto-downloads ChromeDriver, but ensure Chrome browser is installed
-
-3. **Permission Errors**: Make sure the script has write permissions to the data and logs folders
-
-4. **Rate Limiting**: If you get blocked, increase `REQUEST_DELAY_SECONDS` in config.py
-
-### Logs
-
-Check the logs folder for detailed information:
-- `logs/tise_scraper_YYYYMMDD.log` - Daily log files
-- Look for ERROR and WARNING messages for issues
-
-### Database Issues
-
-If database gets corrupted, delete `data/database.db` - it will be recreated automatically.
-
-## Legal and Ethical Considerations
+**🎉 Happy scraping! This tool helps you easily monitor and organize Tise.com profiles with automated downloads and smart file organization.**
 
 - ⚖️ **Respect Terms of Service**: Review Tise.com's terms of service before use
 - 🕒 **Rate Limiting**: Built-in delays to avoid overloading servers
