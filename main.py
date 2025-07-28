@@ -12,7 +12,6 @@ import schedule
 from datetime import datetime
 from typing import List
 
-# Add src to path for imports
 sys.path.append('src')
 
 from config import (

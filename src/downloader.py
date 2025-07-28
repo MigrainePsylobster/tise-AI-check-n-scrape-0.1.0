@@ -75,7 +75,6 @@ class FileDownloader:
     def _get_profile_name(self, profile_url: str) -> str:
         """Extract profile name from URL."""
         try:
-            # Extract username from URL
             parts = profile_url.rstrip('/').split('/')
             return self._sanitize_filename(parts[-1] if parts else 'unknown_profile')
         except:
@@ -86,7 +85,7 @@ class FileDownloader:
         invalid_chars = '<>:"/\\|?*'
         for char in invalid_chars:
             filename = filename.replace(char, '_')
-        return filename[:50]  # Limit length
+        return filename[:50]
     
     def _download_image(self, img_url: str, folder: Path, base_name: str) -> Optional[Path]:
         """Download a single image with unique naming to prevent overwrites."""
@@ -94,8 +93,6 @@ class FileDownloader:
             response = requests.get(img_url, timeout=30, stream=True)
             response.raise_for_status()
             
-            # Extract unique ID from Tise URL pattern
-            # Example: https://tise-static.telenorcdn.net/.../4c2bc7f2-1bce-490e-95b2-ef040a840e6b/perfect-jeans
             unique_id = self._extract_unique_id_from_url(img_url)
             
             # Determine file extension
@@ -107,26 +104,22 @@ class FileDownloader:
             elif 'gif' in content_type:
                 ext = '.gif'
             elif 'webp' in content_type:
-                ext = '.jpg'  # Convert webp to jpg automatically
+                ext = '.jpg'
             else:
-                # Try to get extension from URL
                 parsed_url = urlparse(img_url)
                 path_ext = Path(parsed_url.path).suffix
                 if path_ext == '.webp':
-                    ext = '.jpg'  # Convert webp to jpg automatically
+                    ext = '.jpg'
                 else:
                     ext = path_ext if path_ext in ['.jpg', '.jpeg', '.png', '.gif'] else '.jpg'
             
-            # Create unique filename: perfect-jeans_4c2bc7f2.jpg
             unique_filename = f"{base_name}_{unique_id}{ext}"
             file_path = folder / 'images' / unique_filename
             
-            # Download and save
             with open(file_path, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
             
-            # Convert webp to jpg if needed, then verify and optimize
             self._convert_and_optimize_image(file_path, ext)
             
             logging.debug(f"Downloaded image: {file_path}")
@@ -140,11 +133,8 @@ class FileDownloader:
         """Convert webp to jpg if needed, then verify and optimize image."""
         try:
             with Image.open(file_path) as img:
-                # Convert webp to jpg if the target extension is jpg but original might be webp
                 if target_ext == '.jpg' and (img.format == 'WEBP' or file_path.suffix.lower() == '.webp'):
-                    # Convert WEBP to RGB (removes transparency) then save as JPG
                     if img.mode in ('RGBA', 'LA', 'P'):
-                        # Convert to RGB, using white background for transparency
                         rgb_img = Image.new('RGB', img.size, (255, 255, 255))
                         if img.mode == 'P':
                             img = img.convert('RGBA')
@@ -153,15 +143,12 @@ class FileDownloader:
                     elif img.mode != 'RGB':
                         img = img.convert('RGB')
                     
-                    # Save as JPG with good quality
                     img.save(file_path, 'JPEG', optimize=True, quality=90)
                     logging.debug(f"Converted WEBP to JPG: {file_path}")
                 else:
-                    # Verify image can be opened
                     img.verify()
-                    img = Image.open(file_path)  # Reopen after verify
+                    img = Image.open(file_path)
                 
-                # Optionally resize very large images
                 if img.width > 2000 or img.height > 2000:
                     img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
                     if target_ext == '.jpg':
@@ -172,27 +159,6 @@ class FileDownloader:
                     
         except Exception as e:
             logging.warning(f"Image processing failed for {file_path}: {e}")
-            # Remove invalid image file
-            if file_path.exists():
-                file_path.unlink()
-    
-    def _verify_and_optimize_image(self, file_path: Path):
-        """Verify image is valid and optionally optimize it."""
-        try:
-            with Image.open(file_path) as img:
-                # Verify image can be opened
-                img.verify()
-                
-                # Optionally resize very large images
-                img = Image.open(file_path)  # Reopen after verify
-                if img.width > 2000 or img.height > 2000:
-                    img.thumbnail((2000, 2000), Image.Resampling.LANCZOS)
-                    img.save(file_path, optimize=True, quality=85)
-                    logging.debug(f"Optimized large image: {file_path}")
-                    
-        except Exception as e:
-            logging.warning(f"Image verification failed for {file_path}: {e}")
-            # Remove invalid image file
             if file_path.exists():
                 file_path.unlink()
     
@@ -201,7 +167,6 @@ class FileDownloader:
         try:
             metadata_file = folder / "metadata.json"
             
-            # Prepare metadata
             metadata = {
                 'post_url': post_data['post_url'],
                 'profile_url': post_data['profile_url'],
@@ -234,7 +199,6 @@ class FileDownloader:
                         total_size += os.path.getsize(file_path)
                         file_count += 1
             
-            # Convert bytes to MB
             total_size_mb = total_size / (1024 * 1024)
             
             return {
@@ -274,15 +238,11 @@ class FileDownloader:
     def _extract_unique_id_from_url(self, img_url: str) -> str:
         """Extract unique ID from Tise image URL for filename uniqueness."""
         try:
-            # Tise URL pattern: https://tise-static.telenorcdn.net/.../4c2bc7f2-1bce-490e-95b2-ef040a840e6b/perfect-jeans
             url_parts = img_url.split('/')
             if len(url_parts) >= 2:
-                # Get the UUID part (second to last segment)
                 uuid_part = url_parts[-2]
-                # Return first 8 characters of UUID for shorter filenames
                 return uuid_part[:8] if len(uuid_part) >= 8 else uuid_part
         except Exception as e:
             logging.debug(f"Could not extract unique ID from URL {img_url}: {e}")
         
-        # Fallback: use hash of full URL
         return hashlib.md5(img_url.encode()).hexdigest()[:8]

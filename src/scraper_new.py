@@ -35,14 +35,13 @@ class TiseScraper:
                 response = self.session.get(url, timeout=30)
                 response.raise_for_status()
                 
-                # Add delay to be respectful
                 time.sleep(REQUEST_DELAY_SECONDS + random.uniform(0, 1))
                 return response
                 
             except requests.RequestException as e:
                 logging.warning(f"Request attempt {attempt + 1} failed for {url}: {e}")
                 if attempt < MAX_RETRIES - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    time.sleep(2 ** attempt)
                 else:
                     logging.error(f"All request attempts failed for {url}")
                     return None
@@ -174,7 +173,7 @@ class TiseScraper:
                 'size': api_post.get('productSize', ''),
                 'location': self._extract_location(api_post.get('location', {})),
                 'colors': self._extract_colors(api_post.get('colors', [])),
-                'raw_api_data': json.dumps(api_post)  # Store full API response for debugging
+                'raw_api_data': json.dumps(api_post)
             }
             
             return processed_post
