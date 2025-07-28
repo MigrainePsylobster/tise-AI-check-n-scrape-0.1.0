@@ -17,7 +17,7 @@ sys.path.append('src')
 
 from config import *
 from database import DatabaseManager
-from scraper import TiseScraper
+from scraper_new import TiseScraper
 from downloader import FileDownloader
 
 class TiseMonitor:

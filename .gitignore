@@ -31,6 +31,7 @@ ENV/
 # Downloaded content (you may want to keep this private)
 data/downloads/
 data/*.db
+hidden info/
 
 # Logs
 logs/

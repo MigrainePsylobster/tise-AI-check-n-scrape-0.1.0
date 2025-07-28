@@ -61,14 +61,17 @@ class TiseScraper:
             
             if response and response.status_code == 200:
                 data = response.json()
-                user_id = data.get('id')
+                # API returns nested structure: {"result": {"id": "...", "username": "..."}}
+                result = data.get('result', {})
+                user_id = result.get('id')
                 if user_id:
                     logging.info(f"Found user ID {user_id} for username {username}")
                     return user_id
                 else:
                     logging.error(f"No user ID found in API response for {username}")
+                    logging.debug(f"API response structure: {list(data.keys())}")
             else:
-                logging.error(f"Failed to get user info for {username}")
+                logging.error(f"Failed to get user info for {username}: Status {response.status_code if response else 'No response'}")
                 
         except Exception as e:
             logging.error(f"Error getting user ID for {username}: {e}")
