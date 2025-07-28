@@ -47,7 +47,7 @@ class TiseMonitor:
         
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.FileHandler(log_filename, encoding='utf-8'),
                 logging.StreamHandler(sys.stdout)
@@ -68,22 +68,29 @@ class TiseMonitor:
     def initialize_profiles(self):
         """Initialize profiles from config."""
         if not PROFILES_TO_MONITOR:
+            print("⚠️  No profiles configured in PROFILES_TO_MONITOR")
             logging.warning("No profiles configured in PROFILES_TO_MONITOR")
             return
+        
+        print(f"📋 Initializing {len(PROFILES_TO_MONITOR)} profiles...")
         
         for profile_url in PROFILES_TO_MONITOR:
             profile_url = profile_url.strip()
             if profile_url:
+                username = profile_url.rstrip('/').split('/')[-1]
                 self.db.add_profile(profile_url)
+                print(f"  ✅ Added profile: {username}")
                 logging.info(f"Added profile to monitor: {profile_url}")
     
     def check_all_profiles(self):
         """Check all active profiles for new posts."""
         try:
+            print("🔍 Starting profile check cycle...")
             logging.info("Starting profile check cycle...")
             
             profiles = self.db.get_active_profiles()
             if not profiles:
+                print("⚠️  No active profiles to monitor")
                 logging.warning("No active profiles to monitor")
                 return
             
@@ -92,24 +99,35 @@ class TiseMonitor:
             for profile in profiles:
                 try:
                     profile_url = profile['profile_url']
+                    username = profile_url.rstrip('/').split('/')[-1]
+                    print(f"👤 Checking profile: {username}")
                     logging.info(f"Checking profile: {profile_url}")
                     
                     # Check for new posts
                     new_posts = self.scraper.check_for_new_posts(profile_url)
                     
                     if new_posts:
+                        print(f"🆕 Found {len(new_posts)} new posts from {username}")
                         logging.info(f"Found {len(new_posts)} new posts from {profile_url}")
                         
                         # Download content for new posts
-                        for post in new_posts:
+                        for i, post in enumerate(new_posts, 1):
                             try:
+                                post_title = post['title'][:30] + "..." if len(post['title']) > 30 else post['title']
+                                print(f"  📝 Post {i}/{len(new_posts)}: {post_title}")
+                                
                                 downloaded_files = self.downloader.download_post_content(post)
                                 if downloaded_files:
+                                    print(f"    ✅ Downloaded {len(downloaded_files)} files")
                                     logging.info(f"Downloaded {len(downloaded_files)} files for: {post['title']}")
                                 else:
+                                    print(f"    ❌ Failed to download files")
                                     logging.warning(f"Failed to download content for: {post['title']}")
                             except Exception as e:
+                                print(f"    ❌ Error downloading post")
                                 logging.error(f"Error downloading post {post['post_url']}: {e}")
+                    else:
+                        print(f"  ✓ No new posts found")
                     
                     total_new_posts += len(new_posts)
                     
@@ -117,11 +135,17 @@ class TiseMonitor:
                     time.sleep(REQUEST_DELAY_SECONDS)
                     
                 except Exception as e:
+                    print(f"  ❌ Error checking profile")
                     logging.error(f"Error checking profile {profile.get('profile_url', 'unknown')}: {e}")
             
+            if total_new_posts > 0:
+                print(f"🎉 Check completed! Found {total_new_posts} new posts total")
+            else:
+                print("✅ Check completed - no new posts found")
             logging.info(f"Profile check cycle completed. Found {total_new_posts} new posts total.")
             
         except Exception as e:
+            print("❌ Error during profile check")
             logging.error(f"Error in check_all_profiles: {e}")
     
     def print_statistics(self):
@@ -210,12 +234,20 @@ class TiseMonitor:
             
             # Main monitoring loop
             while self.running:
+                # Show when next check will happen
+                next_run = schedule.next_run()
+                if next_run:
+                    next_run_str = next_run.strftime("%H:%M:%S")
+                    print(f"💤 Next check at: {next_run_str}")
+                
                 schedule.run_pending()
                 time.sleep(60)  # Check every minute for scheduled jobs
                 
         except KeyboardInterrupt:
+            print("\\n🛑 Monitoring stopped by user")
             logging.info("Automatic monitoring stopped by user")
         except Exception as e:
+            print("❌ Error in automatic mode")
             logging.error(f"Error in automatic mode: {e}")
     
     def cleanup(self):

@@ -29,10 +29,16 @@ class FileDownloader:
             
             # Download images
             image_urls = json.loads(post_data.get('image_urls', '[]'))
+            print(f"      📸 Downloading {len(image_urls)} images...")
+            
             for i, img_url in enumerate(image_urls):
+                print(f"        🔽 Image {i+1}/{len(image_urls)}...", end="")
                 file_path = self._download_image(img_url, post_folder, f"image_{i+1}")
                 if file_path:
+                    print(" ✅")
                     downloaded_files.append(str(file_path))
+                else:
+                    print(" ❌")
             
             # Save post metadata
             metadata_file = self._save_post_metadata(post_data, post_folder)

@@ -1,10 +1,12 @@
 # Tise.com Profile Scraper Configuration
 
 # Profile URLs to monitor (add your target profiles here)
+# use # to comment out unused profiles
 PROFILES_TO_MONITOR = [
-    "https://tise.com/eirikstrand96",
-    "https://tise.com/joy_will_be_sparked"
-    # Example: "https://tise.com/profiles/username2",
+    "https://tise.com/profiles/username1",
+    "https://tise.com/profiles/username2"
+   # "https://tise.com/profiles/username3",
+   # "https://tise.com/profiles/username4"
 ]
 
 # Scraping settings

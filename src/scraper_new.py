@@ -88,25 +88,48 @@ class TiseScraper:
                 logging.error(f"Could not get user ID for {username}")
                 return []
             
-            # Get posts using the API
-            posts_api_url = f"https://tise.com/api/user/{user_id}/tises?sort=sold.asc"
-            response = self._make_request(posts_api_url)
+            # Get posts using the API with pagination
+            all_posts = []
+            next_url = f"https://tise.com/api/user/{user_id}/tises?sort=sold.asc"
+            page_count = 0
+            max_pages = 10  # Safety limit to prevent infinite loops
             
-            if not response or response.status_code != 200:
-                logging.error(f"Failed to get posts for user {username}")
-                return []
+            while next_url and page_count < max_pages:
+                print(f"      📄 Fetching page {page_count + 1}...")
+                response = self._make_request(next_url)
+                
+                if not response or response.status_code != 200:
+                    logging.error(f"Failed to get posts page {page_count + 1} for user {username}")
+                    break
+                
+                data = response.json()
+                page_posts = data.get('results', [])
+                all_posts.extend(page_posts)
+                
+                # Check for next page
+                next_page = data.get('next')
+                if next_page:
+                    # Fix relative URL by adding base domain
+                    if next_page.startswith('/'):
+                        next_url = f"https://tise.com{next_page}"
+                    else:
+                        next_url = next_page
+                else:
+                    next_url = None
+                    
+                page_count += 1
+                print(f"        ✅ Found {len(page_posts)} posts on page {page_count}")
             
-            data = response.json()
-            posts_data = data.get('results', [])
+            print(f"      📊 Total posts from {page_count} pages: {len(all_posts)}")
             
             # Convert API data to our standard format
             posts = []
-            for post_data in posts_data:
+            for post_data in all_posts:
                 processed_post = self._process_api_post(post_data, profile_url)
                 if processed_post:
                     posts.append(processed_post)
             
-            logging.info(f"Found {len(posts)} posts for {username}")
+            logging.info(f"Found {len(posts)} posts across {page_count} pages for {username}")
             return posts
             
         except Exception as e:
