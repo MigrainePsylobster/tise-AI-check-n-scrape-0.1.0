@@ -231,15 +231,23 @@ class TiseMonitor:
             # Run initial check
             self.check_all_profiles()
             
+            # Show when next check will happen (only once after initial check)
+            next_run = schedule.next_run()
+            if next_run:
+                next_run_str = next_run.strftime("%H:%M:%S")
+                print(f"💤 Next check at: {next_run_str}")
+            
             # Main monitoring loop
             while self.running:
-                # Show when next check will happen
-                next_run = schedule.next_run()
-                if next_run:
-                    next_run_str = next_run.strftime("%H:%M:%S")
-                    print(f"💤 Next check at: {next_run_str}")
+                jobs_ran = schedule.run_pending()
                 
-                schedule.run_pending()
+                # Only show next check time if a job just ran
+                if jobs_ran:
+                    next_run = schedule.next_run()
+                    if next_run:
+                        next_run_str = next_run.strftime("%H:%M:%S")
+                        print(f"💤 Next check at: {next_run_str}")
+                
                 time.sleep(60)  # Check every minute for scheduled jobs
                 
         except KeyboardInterrupt:
